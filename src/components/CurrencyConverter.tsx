@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { useCurrencyConverter, SupportedCurrency, ConversionResult } from '@/hooks/useCurrencyConverter';
 
 const CURRENCY_SYMBOLS: Record<SupportedCurrency, string> = {
@@ -28,6 +28,180 @@ const CURRENCY_NAMES: Record<SupportedCurrency, string> = {
   CNY: 'Yuan Chinês',
   SEK: 'Coroa Sueca'
 };
+
+const CURRENCY_FLAGS: Record<SupportedCurrency, string> = {
+  USD: 'USD',
+  EUR: 'EUR',
+  BRL: 'BRL',
+  GBP: 'GBP',
+  JPY: 'JPY',
+  CAD: 'CAD',
+  AUD: 'AUD',
+  CHF: 'CHF',
+  CNY: 'CNY',
+  SEK: 'SEK'
+};
+
+// Componente para renderizar bandeiras SVG circulares
+function CircularFlag({ currency, size = 32 }: { currency: SupportedCurrency; size?: number }) {
+  return (
+    <div 
+      className="rounded-full overflow-hidden border-2 border-gray-200 shadow-sm flex items-center justify-center"
+      style={{ width: size, height: size }}
+    >
+      <img
+        src={`/assets/${currency}.svg`}
+        alt={`${currency} flag`}
+        className="w-full h-full object-cover"
+        style={{ transform: 'scale(1.1)' }} // Aumenta um pouco para preencher melhor o círculo
+      />
+    </div>
+  );
+}
+
+interface SearchableSelectProps {
+  value: SupportedCurrency;
+  onChange: (currency: SupportedCurrency) => void;
+  options: SupportedCurrency[];
+  placeholder: string;
+  label: string;
+}
+
+function SearchableSelect({ value, onChange, options, placeholder, label }: SearchableSelectProps) {
+  const [isOpen, setIsOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [highlightedIndex, setHighlightedIndex] = useState(-1);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  const filteredOptions = useMemo(() => {
+    return options.filter(currency => 
+      currency.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      CURRENCY_NAMES[currency].toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [options, searchTerm]);
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(e.target.value);
+    setHighlightedIndex(-1);
+    if (!isOpen) setIsOpen(true);
+  };
+
+  const handleOptionClick = (currency: SupportedCurrency) => {
+    onChange(currency);
+    setSearchTerm('');
+    setIsOpen(false);
+    setHighlightedIndex(-1);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (!isOpen) {
+      if (e.key === 'Enter' || e.key === 'ArrowDown') {
+        setIsOpen(true);
+        return;
+      }
+    }
+
+    switch (e.key) {
+      case 'ArrowDown':
+        e.preventDefault();
+        setHighlightedIndex(prev => 
+          prev < filteredOptions.length - 1 ? prev + 1 : 0
+        );
+        break;
+      case 'ArrowUp':
+        e.preventDefault();
+        setHighlightedIndex(prev => 
+          prev > 0 ? prev - 1 : filteredOptions.length - 1
+        );
+        break;
+      case 'Enter':
+        e.preventDefault();
+        if (highlightedIndex >= 0 && filteredOptions[highlightedIndex]) {
+          handleOptionClick(filteredOptions[highlightedIndex]);
+        }
+        break;
+      case 'Escape':
+        setIsOpen(false);
+        setHighlightedIndex(-1);
+        inputRef.current?.blur();
+        break;
+    }
+  };
+
+  const handleBlur = (e: React.FocusEvent) => {
+    // Delay to allow option clicks to register
+    setTimeout(() => {
+      if (!dropdownRef.current?.contains(e.relatedTarget)) {
+        setIsOpen(false);
+        setSearchTerm('');
+        setHighlightedIndex(-1);
+      }
+    }, 150);
+  };
+
+  const displayValue = isOpen ? searchTerm : `${value} - ${CURRENCY_NAMES[value]}`;
+
+  return (
+    <div className="relative">
+      <label className="block text-sm font-medium text-gray-700 mb-2">
+        {label}
+      </label>
+      <div className="relative">
+        <div className="flex items-center space-x-3">
+          <CircularFlag currency={value} size={40} />
+          <input
+            ref={inputRef}
+            type="text"
+            value={displayValue}
+            onChange={handleInputChange}
+            onKeyDown={handleKeyDown}
+            onBlur={handleBlur}
+            onFocus={() => setIsOpen(true)}
+            placeholder={placeholder}
+            className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-pointer"
+          />
+        </div>
+        <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+          <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+          </svg>
+        </div>
+      </div>
+
+      {isOpen && (
+        <div
+          ref={dropdownRef}
+          className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-auto"
+        >
+          {filteredOptions.length > 0 ? (
+            filteredOptions.map((currency, index) => (
+              <div
+                key={currency}
+                onClick={() => handleOptionClick(currency)}
+                className={`px-4 py-3 cursor-pointer flex items-center space-x-3 ${
+                  index === highlightedIndex
+                    ? 'bg-blue-50 text-blue-700'
+                    : 'hover:bg-gray-50'
+                }`}
+              >
+                <CircularFlag currency={currency} size={32} />
+                <div>
+                  <div className="font-medium">{currency}</div>
+                  <div className="text-sm text-gray-500">{CURRENCY_NAMES[currency]}</div>
+                </div>
+              </div>
+            ))
+          ) : (
+            <div className="px-4 py-3 text-gray-500 text-center">
+              Nenhuma moeda encontrada
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default function CurrencyConverter() {
   const [amount, setAmount] = useState<string>('');
@@ -77,143 +251,137 @@ export default function CurrencyConverter() {
   };
 
   return (
-    <div className="max-w-2xl mx-auto p-6 bg-white rounded-lg shadow-lg">
-      <h1 className="text-3xl font-bold text-center text-gray-800 mb-8">
-        💱 Conversor de Moedas
-      </h1>
+    <div className="min-h-screen bg-[#8220EB] text-blackpy-8 font-[Montserrat]">
+      <div className="max-w-6xl mx-auto px-4">
+        {/* Título principal fora do card */}
+        <h1 className="text-6xl md:text-7xl font-bold text-center text-black mb-12">
+          CONVERSOR DE MOEDAS
+        </h1>
 
-      <div className="space-y-6">
-        {/* Input de valor */}
-        <div>
-          <label htmlFor="amount" className="block text-sm font-medium text-gray-700 mb-2">
-            Valor
-          </label>
-          <input
-            id="amount"
-            type="number"
-            value={amount}
-            onChange={(e) => setAmount(e.target.value)}
-            placeholder="Digite o valor"
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            min="0"
-            step="0.01"
-          />
-        </div>
-
-        {/* Seleção de moedas */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label htmlFor="from" className="block text-sm font-medium text-gray-700 mb-2">
-              De
-            </label>
-            <select
-              id="from"
-              value={fromCurrency}
-              onChange={(e) => setFromCurrency(e.target.value as SupportedCurrency)}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            >
-              {supportedCurrencies.map((currency) => (
-                <option key={currency} value={currency}>
-                  {currency} - {CURRENCY_NAMES[currency]}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div className="flex items-end">
-            <button
-              onClick={handleSwapCurrencies}
-              className="w-full py-3 px-4 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors duration-200 flex items-center justify-center"
-              title="Trocar moedas"
-            >
-              ↔️
-            </button>
-          </div>
-
-          <div>
-            <label htmlFor="to" className="block text-sm font-medium text-gray-700 mb-2">
-              Para
-            </label>
-            <select
-              id="to"
-              value={toCurrency}
-              onChange={(e) => setToCurrency(e.target.value as SupportedCurrency)}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            >
-              {supportedCurrencies.map((currency) => (
-                <option key={currency} value={currency}>
-                  {currency} - {CURRENCY_NAMES[currency]}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
-
-        {/* Botão de conversão */}
-        <button
-          onClick={handleConvert}
-          disabled={!amount || parseFloat(amount) <= 0 || isLoading}
-          className="w-full py-3 px-6 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors duration-200 font-medium"
-        >
-          {isLoading ? '🔄 Convertendo...' : '💱 Converter'}
-        </button>
-
-        {/* Exibição de erro */}
-        {error && (
-          <div className="p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
-            <strong>Erro:</strong> {error}
-          </div>
-        )}
-
-        {/* Resultado da conversão */}
-        {result && (
-          <div className="p-6 bg-green-50 border border-green-200 rounded-lg">
-            <h3 className="text-lg font-semibold text-green-800 mb-4">
-              Resultado da Conversão
-            </h3>
-            <div className="space-y-2">
-              <div className="flex justify-between items-center">
-                <span className="text-gray-600">Valor original:</span>
-                <span className="font-medium">
-                  {formatCurrency(result.originalAmount, result.from)}
-                </span>
+        {/* Card principal */}
+        <div className="max-w-6xl mx-auto p-8 bg-white rounded-lg shadow-lg">
+          <div className="space-y-6">
+            {/* Layout responsivo: linha no desktop, coluna no mobile */}
+            <div className="flex flex-col lg:flex-row lg:items-end gap-4">
+              {/* Input de valor */}
+              <div className="flex-1">
+                <label htmlFor="amount" className="block text-sm font-medium text-gray-700 mb-2">
+                  Valor
+                </label>
+                <input
+                  id="amount"
+                  type="number"
+                  value={amount}
+                  onChange={(e) => setAmount(e.target.value)}
+                  placeholder="Digite o valor"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  min="0"
+                  step="0.01"
+                />
               </div>
-              <div className="flex justify-between items-center">
-                <span className="text-gray-600">Valor convertido:</span>
-                <span className="font-bold text-green-700 text-xl">
-                  {formatCurrency(result.convertedAmount, result.to)}
-                </span>
+
+              {/* Seleção de moedas - De */}
+              <div className="flex-1">
+                <SearchableSelect
+                  value={fromCurrency}
+                  onChange={setFromCurrency}
+                  options={supportedCurrencies}
+                  placeholder="Pesquisar moeda de origem..."
+                  label="De"
+                />
               </div>
-              <div className="flex justify-between items-center">
-                <span className="text-gray-600">Taxa de câmbio:</span>
-                <span className="font-medium">
-                  1 {result.from} = {result.rate.toFixed(4)} {result.to}
-                </span>
+
+              {/* Botão de troca */}
+              <div className="flex items-end">
+                <button
+                  onClick={handleSwapCurrencies}
+                  className="w-full lg:w-16 py-3 px-4 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors duration-200 flex items-center justify-center"
+                  title="Trocar moedas"
+                >
+                  ↔️
+                </button>
               </div>
-              <div className="flex justify-between items-center">
-                <span className="text-gray-600">Fonte:</span>
-                <span className="text-sm text-gray-500">
-                  {result.source === 'API' ? '🌐 Taxas em tempo real' : '📊 Taxas fixas'}
-                </span>
+
+              {/* Seleção de moedas - Para */}
+              <div className="flex-1">
+                <SearchableSelect
+                  value={toCurrency}
+                  onChange={setToCurrency}
+                  options={supportedCurrencies}
+                  placeholder="Pesquisar moeda de destino..."
+                  label="Para"
+                />
               </div>
             </div>
-          </div>
-        )}
 
-        {/* Informações sobre moedas suportadas */}
-        <div className="mt-8 p-4 bg-gray-50 rounded-lg">
-          <h3 className="text-sm font-medium text-gray-700 mb-2">
-            Moedas Suportadas ({supportedCurrencies.length})
-          </h3>
-          <div className="flex flex-wrap gap-2">
-            {supportedCurrencies.map((currency) => (
-              <span
-                key={currency}
-                className="px-2 py-1 bg-white text-gray-600 rounded text-xs border"
-              >
-                {currency}
-              </span>
-            ))}
+            {/* Botão de conversão */}
+            <button
+              onClick={handleConvert}
+              disabled={!amount || parseFloat(amount) <= 0 || isLoading}
+              className="w-full py-3 px-6 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors duration-200 font-medium"
+            >
+              {isLoading ? '🔄 Convertendo...' : '💱 Converter'}
+            </button>
+
+            {/* Exibição de erro */}
+            {error && (
+              <div className="p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
+                <strong>Erro:</strong> {error}
+              </div>
+            )}
+
+            {/* Resultado da conversão */}
+            {result && (
+              <div className="p-6 border border-gray-200 rounded-lg">
+                <h3 className="text-lg font-semibold text-gray-800 mb-4">
+                  Resultado da Conversão
+                </h3>
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-600">Valor original:</span>
+                    <span className="font-medium">
+                      {formatCurrency(result.originalAmount, result.from)}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-600">Valor convertido:</span>
+                    <span className="font-bold text-gray-800 text-xl">
+                      {formatCurrency(result.convertedAmount, result.to)}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-600">Taxa de câmbio:</span>
+                    <span className="font-medium">
+                      1 {result.from} = {result.rate.toFixed(4)} {result.to}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-600">Fonte:</span>
+                    <span className="text-sm text-gray-500">
+                      {result.source === 'API' ? '🌐 Taxas em tempo real' : '📊 Taxas fixas'}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Informações sobre moedas suportadas */}
+            <div className="mt-8 p-4 bg-gray-50 rounded-lg">
+              <h3 className="text-sm font-medium text-gray-700 mb-4">
+                Moedas Suportadas ({supportedCurrencies.length})
+              </h3>
+              <div className="flex flex-wrap gap-3">
+                {supportedCurrencies.map((currency) => (
+                  <div
+                    key={currency}
+                    className="flex items-center space-x-2 px-3 py-2 bg-white text-gray-600 rounded-lg border shadow-sm hover:shadow-md transition-shadow"
+                  >
+                    <CircularFlag currency={currency} size={24} />
+                    <span className="text-sm font-medium">{currency}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       </div>
