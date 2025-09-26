@@ -251,15 +251,29 @@ export default function CurrencyConverter() {
   };
 
   return (
-    <div className="min-h-screen bg-[#8220EB] text-blackpy-8 font-[Montserrat]">
-      <div className="max-w-6xl mx-auto px-4">
+    <div 
+      className="min-h-screen text-black py-8 font-[Montserrat] relative"
+      style={{
+        backgroundImage: 'url(/waves.png)',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat'
+      }}
+    >
+      {/* Overlay para melhorar legibilidade */}
+      <div className="absolute inset-0 bg-black bg-opacity-20"></div>
+      
+      <div className="max-w-6xl mx-auto px-4 relative z-10">
         {/* Título principal fora do card */}
-        <h1 className="text-6xl md:text-7xl font-bold text-center text-black mb-12">
+        <h1 className="text-6xl md:text-7xl font-bold text-center text-white mb-12">
           CONVERSOR DE MOEDAS
         </h1>
+        <h2 className="text-xl md:text-2xl font-bold text-center text-white mb-12">
+        Bem-vindo à ferramenta de moedas mais confiável do mundo?
+        </h2>
 
         {/* Card principal */}
-        <div className="max-w-6xl mx-auto p-8 bg-white rounded-lg shadow-lg">
+        <div className="max-w-6xl mx-auto p-8 bg-white bg-opacity-95 backdrop-blur-sm rounded-lg shadow-2xl border border-white border-opacity-20">
           <div className="space-y-6">
             {/* Layout responsivo: linha no desktop, coluna no mobile */}
             <div className="flex flex-col lg:flex-row lg:items-end gap-4">
@@ -315,13 +329,15 @@ export default function CurrencyConverter() {
             </div>
 
             {/* Botão de conversão */}
-            <button
-              onClick={handleConvert}
-              disabled={!amount || parseFloat(amount) <= 0 || isLoading}
-              className="w-full py-3 px-6 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors duration-200 font-medium"
-            >
-              {isLoading ? '🔄 Convertendo...' : '💱 Converter'}
-            </button>
+            <div className="flex justify-center">
+              <button
+                onClick={handleConvert}
+                disabled={!amount || parseFloat(amount) <= 0 || isLoading}
+                className="px-12 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 disabled:from-gray-400 disabled:to-gray-500 disabled:cursor-not-allowed transition-all duration-200 font-medium text-lg shadow-lg hover:shadow-xl transform hover:scale-105 disabled:transform-none"
+              >
+                {isLoading ? 'Convertendo...' : 'Converter'}
+              </button>
+            </div>
 
             {/* Exibição de erro */}
             {error && (
@@ -339,7 +355,7 @@ export default function CurrencyConverter() {
                 <div className="space-y-2">
                   <div className="flex justify-between items-center">
                     <span className="text-gray-600">Valor original:</span>
-                    <span className="font-medium">
+                    <span className="font-medium text-black">
                       {formatCurrency(result.originalAmount, result.from)}
                     </span>
                   </div>
@@ -366,15 +382,15 @@ export default function CurrencyConverter() {
             )}
 
             {/* Informações sobre moedas suportadas */}
-            <div className="mt-8 p-4 bg-gray-50 rounded-lg">
-              <h3 className="text-sm font-medium text-gray-700 mb-4">
+            <div className="mt-8 p-6 bg-gray-50 bg-opacity-80 backdrop-blur-sm rounded-lg border border-gray-200">
+              <h3 className="text-lg font-semibold text-gray-800 mb-4 text-center">
                 Moedas Suportadas ({supportedCurrencies.length})
               </h3>
-              <div className="flex flex-wrap gap-3">
+              <div className="flex flex-wrap gap-3 justify-center">
                 {supportedCurrencies.map((currency) => (
                   <div
                     key={currency}
-                    className="flex items-center space-x-2 px-3 py-2 bg-white text-gray-600 rounded-lg border shadow-sm hover:shadow-md transition-shadow"
+                    className="flex items-center space-x-2 px-4 py-2 bg-white bg-opacity-90 text-gray-700 rounded-lg border border-gray-200 shadow-sm hover:shadow-md hover:bg-opacity-100 transition-all duration-200"
                   >
                     <CircularFlag currency={currency} size={24} />
                     <span className="text-sm font-medium">{currency}</span>
