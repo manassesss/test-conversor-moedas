@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useCurrencyConverter, SupportedCurrency } from '@/hooks/useCurrencyConverter';
+import { useCurrencyConverter, SupportedCurrency, ConversionResult } from '@/hooks/useCurrencyConverter';
 
 const CURRENCY_SYMBOLS: Record<SupportedCurrency, string> = {
   USD: '$',
@@ -33,7 +33,7 @@ export default function CurrencyConverter() {
   const [amount, setAmount] = useState<string>('');
   const [fromCurrency, setFromCurrency] = useState<SupportedCurrency>('USD');
   const [toCurrency, setToCurrency] = useState<SupportedCurrency>('BRL');
-  const [result, setResult] = useState<any>(null);
+  const [result, setResult] = useState<ConversionResult | null>(null);
   const [supportedCurrencies, setSupportedCurrencies] = useState<SupportedCurrency[]>([]);
 
   const { convertCurrency, getSupportedCurrencies, isLoading, error, clearError } = useCurrencyConverter();

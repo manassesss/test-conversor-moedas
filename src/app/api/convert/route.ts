@@ -4,6 +4,12 @@ import axios from 'axios';
 // Tipos para as moedas suportadas
 export type SupportedCurrency = 'USD' | 'EUR' | 'BRL' | 'GBP' | 'JPY' | 'CAD' | 'AUD' | 'CHF' | 'CNY' | 'SEK';
 
+// Interface para a resposta da API de câmbio
+interface ExchangeRateResponse {
+  success: boolean;
+  rates: Record<string, number>;
+}
+
 // Taxas de câmbio fixas como fallback
 const FIXED_RATES: Record<string, Record<string, number>> = {
   USD: { BRL: 5.0, EUR: 0.9, GBP: 0.8, JPY: 110, CAD: 1.3, AUD: 1.4, CHF: 0.9, CNY: 6.5, SEK: 10.5 },
@@ -21,7 +27,7 @@ const FIXED_RATES: Record<string, Record<string, number>> = {
 // Função para buscar taxas de câmbio da API externa
 async function fetchExchangeRates(): Promise<Record<string, number> | null> {
   try {
-    const response = await axios.get('https://api.exchangerate.host/latest?base=USD');
+    const response = await axios.get<ExchangeRateResponse>('https://api.exchangerate.host/latest?base=USD');
     
     if (response.data.success) {
       return response.data.rates;
