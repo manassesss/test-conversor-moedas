@@ -260,12 +260,14 @@ export default function CurrencyConverter() {
   // Evitar problemas de hidratação
   if (!isClient) {
     return (
-      <div className="min-h-screen bg-white text-black py-8 font-[Montserrat] relative">
-        <div className="max-w-6xl mx-auto px-4 relative z-10">
-          <div className="flex items-center justify-center min-h-[400px]">
-            <div className="animate-pulse">
-              <div className="h-16 bg-gray-200 rounded-lg mb-4 w-96"></div>
-              <div className="h-8 bg-gray-200 rounded-lg w-64 mx-auto"></div>
+      <div className="min-h-screen bg-white text-black font-[Montserrat] relative flex flex-col">
+        <div className="flex-1 flex items-center justify-center relative z-10">
+          <div className="max-w-6xl mx-auto px-4 w-full">
+            <div className="flex items-center justify-center min-h-[400px]">
+              <div className="animate-pulse">
+                <div className="h-16 bg-gray-200 rounded-lg mb-4 w-96"></div>
+                <div className="h-8 bg-gray-200 rounded-lg w-64 mx-auto"></div>
+              </div>
             </div>
           </div>
         </div>
@@ -274,7 +276,7 @@ export default function CurrencyConverter() {
   }
 
   return (
-    <div className="min-h-screen bg-white text-black py-8 font-[Montserrat] relative">
+    <div className="min-h-screen bg-white text-black font-[Montserrat] relative flex flex-col">
       {/* Waves na parte inferior */}
       <div 
         className="absolute top-0 left-0 right-0 h-200"
@@ -286,17 +288,18 @@ export default function CurrencyConverter() {
         }}
       ></div>
       
-      <div className="max-w-6xl mx-auto px-4 relative z-10">
+      <div className="flex-1 flex items-center justify-center relative z-10">
+        <div className="max-w-6xl mx-auto px-4 w-full">
         {/* Título principal fora do card */}
         <h1 className="text-6xl md:text-7xl font-bold text-center text-white mb-12">
           CONVERSOR DE MOEDAS
         </h1>
         <h2 className="text-xl md:text-2xl font-bold text-center text-white mb-12">
-        Bem-vindo à ferramenta de moedas mais confiável do mundo?
+        Bem-vindo à ferramenta de conversão de moedas, possivelmente, mais confiável do mundo.
         </h2>
 
         {/* Card principal */}
-        <div className="max-w-6xl mx-auto p-8 bg-white rounded-lg shadow-xl border border-gray-200">
+        <div className="max-w-5xl mx-auto p-8 bg-white rounded-lg shadow-xl border border-gray-200">
           <div className="space-y-6">
             {/* Layout responsivo: linha no desktop, coluna no mobile */}
             <div className="flex flex-col lg:flex-row lg:items-end gap-4">
@@ -438,6 +441,7 @@ export default function CurrencyConverter() {
               </div>
             </div>
           </div>
+        </div>
         </div>
       </div>
     </div>
