@@ -210,8 +210,14 @@ export default function CurrencyConverter() {
   const [toCurrency, setToCurrency] = useState<SupportedCurrency>('BRL');
   const [result, setResult] = useState<ConversionResult | null>(null);
   const [supportedCurrencies, setSupportedCurrencies] = useState<SupportedCurrency[]>([]);
+  const [isClient, setIsClient] = useState(false);
 
   const { convertCurrency, getSupportedCurrencies, isLoading, error, clearError } = useCurrencyConverter();
+
+  // Evitar problemas de hidratação
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   useEffect(() => {
     const loadCurrencies = async () => {
@@ -250,6 +256,22 @@ export default function CurrencyConverter() {
       maximumFractionDigits: 2
     })}`;
   };
+
+  // Evitar problemas de hidratação
+  if (!isClient) {
+    return (
+      <div className="min-h-screen bg-white text-black py-8 font-[Montserrat] relative">
+        <div className="max-w-6xl mx-auto px-4 relative z-10">
+          <div className="flex items-center justify-center min-h-[400px]">
+            <div className="animate-pulse">
+              <div className="h-16 bg-gray-200 rounded-lg mb-4 w-96"></div>
+              <div className="h-8 bg-gray-200 rounded-lg w-64 mx-auto"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-white text-black py-8 font-[Montserrat] relative">
@@ -349,7 +371,6 @@ export default function CurrencyConverter() {
                 {isLoading ? (
                   <>
                     <Loader2 className="w-5 h-5 animate-spin" />
-                    <span>Convertendo...</span>
                   </>
                 ) : (
                   <span>Converter</span>
