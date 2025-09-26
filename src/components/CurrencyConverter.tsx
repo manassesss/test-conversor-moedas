@@ -356,29 +356,46 @@ export default function CurrencyConverter() {
 
             {/* Botão de conversão */}
             <div className="flex justify-center">
-              <button
-                onClick={handleConvert}
-                disabled={!amount || parseFloat(amount) <= 0 || isLoading}
-                className="
-                  px-12 py-4 text-white rounded-lg font-medium text-lg
-                  bg-gradient-to-r from-[#6413C2] via-[#7319D8] to-[#8A2AE8]
-                  hover:from-[#5611A8] hover:via-[#6413C2] hover:to-[#7A23D0]
-                  disabled:from-[#9E7CE0] disabled:via-[#A789E6] disabled:to-[#B79EF0]
-                  disabled:text-white/80 disabled:cursor-not-allowed
-                  transition-all duration-200 shadow-lg hover:shadow-xl
-                  transform hover:scale-105 disabled:transform-none
-                  focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#6F1FD0]
-                  flex items-center justify-center space-x-2
-                "
-              >
-                {isLoading ? (
-                  <>
-                    <Loader2 className="w-5 h-5 animate-spin" />
-                  </>
-                ) : (
-                  <span>Converter</span>
+              <div className="relative group">
+                <button
+                  onClick={handleConvert}
+                  disabled={!amount || parseFloat(amount) <= 0 || isLoading}
+                  className="
+                    px-12 py-4 text-white rounded-lg font-medium text-lg
+                    bg-gradient-to-r from-[#6413C2] via-[#7319D8] to-[#8A2AE8]
+                    hover:from-[#5611A8] hover:via-[#6413C2] hover:to-[#7A23D0]
+                    disabled:from-[#9E7CE0] disabled:via-[#A789E6] disabled:to-[#B79EF0]
+                    disabled:text-white/80 disabled:cursor-not-allowed
+                    transition-all duration-200 shadow-lg hover:shadow-xl
+                    transform hover:scale-105 disabled:transform-none
+                    focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#6F1FD0]
+                    flex items-center justify-center space-x-2
+                  "
+                >
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                    </>
+                  ) : (
+                    <span>Converter</span>
+                  )}
+                </button>
+                
+                {/* Tooltip */}
+                {(!amount || parseFloat(amount) <= 0) && !isLoading && (
+                  <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-800 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50">
+                    Digite o valor
+                    <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-800"></div>
+                  </div>
                 )}
-              </button>
+                
+                {isLoading && (
+                  <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-800 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50">
+                    Convertendo...
+                    <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-800"></div>
+                  </div>
+                )}
+              </div>
             </div>
 
             {/* Exibição de erro */}
