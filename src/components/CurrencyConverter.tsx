@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { useCurrencyConverter, SupportedCurrency, ConversionResult } from '@/hooks/useCurrencyConverter';
+import { ArrowLeftRight, Loader2 } from 'lucide-react';
 
 const CURRENCY_SYMBOLS: Record<SupportedCurrency, string> = {
   USD: '$',
@@ -254,7 +255,7 @@ export default function CurrencyConverter() {
     <div className="min-h-screen bg-white text-black py-8 font-[Montserrat] relative">
       {/* Waves na parte inferior */}
       <div 
-        className="absolute bottom-0 left-0 right-0 h-1/2"
+        className="absolute top-0 left-0 right-0 h-200"
         style={{
           backgroundImage: 'url(/waves.png)',
           backgroundSize: 'cover',
@@ -265,10 +266,10 @@ export default function CurrencyConverter() {
       
       <div className="max-w-6xl mx-auto px-4 relative z-10">
         {/* Título principal fora do card */}
-        <h1 className="text-6xl md:text-7xl font-bold text-center text-gray-800 mb-12">
+        <h1 className="text-6xl md:text-7xl font-bold text-center text-white mb-12">
           CONVERSOR DE MOEDAS
         </h1>
-        <h2 className="text-xl md:text-2xl font-bold text-center text-gray-600 mb-12">
+        <h2 className="text-xl md:text-2xl font-bold text-center text-white mb-12">
         Bem-vindo à ferramenta de moedas mais confiável do mundo?
         </h2>
 
@@ -309,10 +310,10 @@ export default function CurrencyConverter() {
               <div className="flex items-end">
                 <button
                   onClick={handleSwapCurrencies}
-                  className="w-full lg:w-16 py-3 px-4 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors duration-200 flex items-center justify-center"
+                  className="w-full lg:w-16 py-3 px-4 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors duration-200 flex items-center justify-center group"
                   title="Trocar moedas"
                 >
-                  ↔️
+                  <ArrowLeftRight className="w-5 h-5 text-gray-600 group-hover:text-gray-800 transition-colors" />
                 </button>
               </div>
 
@@ -333,9 +334,26 @@ export default function CurrencyConverter() {
               <button
                 onClick={handleConvert}
                 disabled={!amount || parseFloat(amount) <= 0 || isLoading}
-                className="px-12 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 disabled:from-gray-400 disabled:to-gray-500 disabled:cursor-not-allowed transition-all duration-200 font-medium text-lg shadow-lg hover:shadow-xl transform hover:scale-105 disabled:transform-none"
+                className="
+                  px-12 py-4 text-white rounded-lg font-medium text-lg
+                  bg-gradient-to-r from-[#6413C2] via-[#7319D8] to-[#8A2AE8]
+                  hover:from-[#5611A8] hover:via-[#6413C2] hover:to-[#7A23D0]
+                  disabled:from-[#9E7CE0] disabled:via-[#A789E6] disabled:to-[#B79EF0]
+                  disabled:text-white/80 disabled:cursor-not-allowed
+                  transition-all duration-200 shadow-lg hover:shadow-xl
+                  transform hover:scale-105 disabled:transform-none
+                  focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#6F1FD0]
+                  flex items-center justify-center space-x-2
+                "
               >
-                {isLoading ? 'Convertendo...' : 'Converter'}
+                {isLoading ? (
+                  <>
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                    <span>Convertendo...</span>
+                  </>
+                ) : (
+                  <span>Converter</span>
+                )}
               </button>
             </div>
 
