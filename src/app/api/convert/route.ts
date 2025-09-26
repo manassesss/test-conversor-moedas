@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import axios from 'axios';
-
-// Tipos para as moedas suportadas
-export type SupportedCurrency = 'USD' | 'EUR' | 'BRL' | 'GBP' | 'JPY' | 'CAD' | 'AUD' | 'CHF' | 'CNY' | 'SEK';
+import { SUPPORTED_CURRENCIES, type SupportedCurrency, SUPPORTED_CURRENCIES_LABEL, convertWithFixedRates } from '@/constants/currencies';
 
 // Interface para a resposta da API de câmbio
 interface ExchangeRateResponse {
@@ -10,19 +8,7 @@ interface ExchangeRateResponse {
   rates: Record<string, number>;
 }
 
-// Taxas de câmbio fixas como fallback
-const FIXED_RATES: Record<string, Record<string, number>> = {
-  USD: { BRL: 5.0, EUR: 0.9, GBP: 0.8, JPY: 110, CAD: 1.3, AUD: 1.4, CHF: 0.9, CNY: 6.5, SEK: 10.5 },
-  EUR: { USD: 1.1, BRL: 5.5, GBP: 0.85, JPY: 120, CAD: 1.4, AUD: 1.5, CHF: 1.0, CNY: 7.0, SEK: 11.0 },
-  BRL: { USD: 0.2, EUR: 0.18, GBP: 0.16, JPY: 22, CAD: 0.26, AUD: 0.28, CHF: 0.18, CNY: 1.3, SEK: 2.1 },
-  GBP: { USD: 1.25, EUR: 1.18, BRL: 6.25, JPY: 140, CAD: 1.6, AUD: 1.7, CHF: 1.1, CNY: 8.0, SEK: 13.0 },
-  JPY: { USD: 0.009, EUR: 0.008, BRL: 0.045, GBP: 0.007, CAD: 0.012, AUD: 0.013, CHF: 0.008, CNY: 0.06, SEK: 0.09 },
-  CAD: { USD: 0.77, EUR: 0.71, BRL: 3.85, GBP: 0.63, JPY: 85, AUD: 1.08, CHF: 0.69, CNY: 5.0, SEK: 8.1 },
-  AUD: { USD: 0.71, EUR: 0.67, BRL: 3.57, GBP: 0.59, JPY: 77, CAD: 0.93, CHF: 0.64, CNY: 4.6, SEK: 7.6 },
-  CHF: { USD: 1.11, EUR: 1.0, BRL: 5.56, GBP: 0.91, JPY: 125, CAD: 1.45, AUD: 1.56, CNY: 7.8, SEK: 12.6 },
-  CNY: { USD: 0.15, EUR: 0.14, BRL: 0.77, GBP: 0.13, JPY: 17, CAD: 0.2, AUD: 0.22, CHF: 0.13, SEK: 2.0 },
-  SEK: { USD: 0.095, EUR: 0.091, BRL: 0.48, GBP: 0.077, JPY: 11, CAD: 0.12, AUD: 0.13, CHF: 0.079, CNY: 0.5 }
-};
+// FIXED_RATES movido para src/constants/currencies.ts
 
 // Função para buscar taxas de câmbio da API externa
 async function fetchExchangeRates(): Promise<Record<string, number> | null> {
@@ -61,13 +47,7 @@ function convertCurrency(
   }
 
   // Usar taxas fixas como fallback
-  if (from === 'USD') {
-    return amount * (FIXED_RATES[from][to] || 1);
-  }
-
-  // Converter via USD usando taxas fixas
-  const amountInUSD = amount / (FIXED_RATES[from]['USD'] || 1);
-  return amountInUSD * (FIXED_RATES['USD'][to] || 1);
+  return convertWithFixedRates(amount, from, to);
 }
 
 export async function GET(request: NextRequest) {
@@ -92,11 +72,9 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const supportedCurrencies: SupportedCurrency[] = ['USD', 'EUR', 'BRL', 'GBP', 'JPY', 'CAD', 'AUD', 'CHF', 'CNY', 'SEK'];
-    
-    if (!supportedCurrencies.includes(from) || !supportedCurrencies.includes(to)) {
+    if (!SUPPORTED_CURRENCIES.includes(from) || !SUPPORTED_CURRENCIES.includes(to)) {
       return NextResponse.json(
-        { error: 'Moeda não suportada. Moedas suportadas: USD, EUR, BRL, GBP, JPY, CAD, AUD, CHF, CNY, SEK' },
+        { error: `Moeda não suportada. Moedas suportadas: ${SUPPORTED_CURRENCIES_LABEL}` },
         { status: 400 }
       );
     }
@@ -125,10 +103,8 @@ export async function GET(request: NextRequest) {
 
 // Endpoint para listar moedas suportadas
 export async function POST() {
-  const supportedCurrencies: SupportedCurrency[] = ['USD', 'EUR', 'BRL', 'GBP', 'JPY', 'CAD', 'AUD', 'CHF', 'CNY', 'SEK'];
-  
   return NextResponse.json({
-    currencies: supportedCurrencies,
-    count: supportedCurrencies.length
+    currencies: SUPPORTED_CURRENCIES,
+    count: SUPPORTED_CURRENCIES.length
   });
 }

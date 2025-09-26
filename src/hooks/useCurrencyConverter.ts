@@ -1,6 +1,5 @@
 import { useState, useCallback } from 'react';
-
-export type SupportedCurrency = 'USD' | 'EUR' | 'BRL' | 'GBP' | 'JPY' | 'CAD' | 'AUD' | 'CHF' | 'CNY' | 'SEK';
+import type { SupportedCurrency } from '@/constants/currencies';
 
 export interface ConversionResult {
   originalAmount: number;

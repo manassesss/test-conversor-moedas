@@ -51,18 +51,13 @@ npm run dev
 
 ## 🌍 Moedas Suportadas
 
-| Código | Nome | Símbolo |
-|--------|------|---------|
-| USD | Dólar Americano | $ |
-| EUR | Euro | € |
-| BRL | Real Brasileiro | R$ |
-| GBP | Libra Esterlina | £ |
-| JPY | Iene Japonês | ¥ |
-| CAD | Dólar Canadense | C$ |
-| AUD | Dólar Australiano | A$ |
-| CHF | Franco Suíço | CHF |
-| CNY | Yuan Chinês | ¥ |
-| SEK | Coroa Sueca | kr |
+As moedas, nomes e símbolos são centralizados em `src/constants/currencies.ts`.
+
+Para ver a lista atualizada de moedas suportadas, consulte:
+
+```ts
+import { SUPPORTED_CURRENCIES, CURRENCY_NAMES, CURRENCY_SYMBOLS } from '@/constants/currencies';
+```
 
 ## 🏗️ Arquitetura do Projeto
 
@@ -95,7 +90,7 @@ A aplicação utiliza a API [exchangerate.host](https://exchangerate.host/) para
 ### Endpoints da API
 
 - `GET /api/convert?amount=100&from=USD&to=BRL` - Converte valores
-- `POST /api/convert` - Lista moedas suportadas
+- `POST /api/convert` - Lista moedas suportadas (fonte: `SUPPORTED_CURRENCIES`)
 
 ## 🧪 Testes
 
@@ -161,6 +156,3 @@ Este projeto está sob a licença MIT. Veja o arquivo `LICENSE` para mais detalh
 
 Desenvolvido como parte de um desafio técnico, demonstrando boas práticas de desenvolvimento web moderno.
 
----
-
-**Nota**: Este projeto foi desenvolvido como um teste técnico, implementando todos os requisitos obrigatórios e a maioria dos diferenciais opcionais para demonstrar competências técnicas e boas práticas de desenvolvimento.

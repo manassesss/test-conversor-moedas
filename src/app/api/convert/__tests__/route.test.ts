@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { convertWithFixedRates, SUPPORTED_CURRENCIES, SUPPORTED_CURRENCIES_LABEL } from '@/constants/currencies';
 
 // Mock do axios
 jest.mock('axios');
@@ -45,5 +46,14 @@ describe('/api/convert', () => {
       expect(error).toBeInstanceOf(Error);
       expect((error as Error).message).toBe('API Error');
     }
+  });
+
+  it('should convert using fixed rates when API is unavailable', () => {
+    const result = convertWithFixedRates(100, 'USD', 'BRL');
+    expect(result).toBeGreaterThan(0);
+  });
+
+  it('should expose supported currencies label', () => {
+    expect(SUPPORTED_CURRENCIES_LABEL).toBe(SUPPORTED_CURRENCIES.join(', '));
   });
 });

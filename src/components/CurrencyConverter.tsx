@@ -1,34 +1,14 @@
 'use client';
 
 import { useState, useEffect, useMemo, useRef } from 'react';
-import { useCurrencyConverter, SupportedCurrency, ConversionResult } from '@/hooks/useCurrencyConverter';
+import { useCurrencyConverter, ConversionResult } from '@/hooks/useCurrencyConverter';
+import type { SupportedCurrency } from '@/constants/currencies';
+import { CURRENCY_NAMES as CURRENCY_NAMES_CONST, CURRENCY_SYMBOLS as CURRENCY_SYMBOLS_CONST, SUPPORTED_CURRENCIES, CURRENCY_FLAGS_ASSET } from '@/constants/currencies';
 import { ArrowLeftRight, Loader2 } from 'lucide-react';
 
-const CURRENCY_SYMBOLS: Record<SupportedCurrency, string> = {
-  USD: '$',
-  EUR: '€',
-  BRL: 'R$',
-  GBP: '£',
-  JPY: '¥',
-  CAD: 'C$',
-  AUD: 'A$',
-  CHF: 'CHF',
-  CNY: '¥',
-  SEK: 'kr'
-};
+const CURRENCY_SYMBOLS = CURRENCY_SYMBOLS_CONST;
 
-const CURRENCY_NAMES: Record<SupportedCurrency, string> = {
-  USD: 'Dólar Americano',
-  EUR: 'Euro',
-  BRL: 'Real Brasileiro',
-  GBP: 'Libra Esterlina',
-  JPY: 'Iene Japonês',
-  CAD: 'Dólar Canadense',
-  AUD: 'Dólar Australiano',
-  CHF: 'Franco Suíço',
-  CNY: 'Yuan Chinês',
-  SEK: 'Coroa Sueca'
-};
+const CURRENCY_NAMES = CURRENCY_NAMES_CONST;
 
 const CURRENCY_FLAGS: Record<SupportedCurrency, string> = {
   USD: 'USD',
@@ -51,10 +31,10 @@ function CircularFlag({ currency, size = 32 }: { currency: SupportedCurrency; si
       style={{ width: size, height: size }}
     >
       <img
-        src={`/assets/${currency}.svg`}
+        src={CURRENCY_FLAGS_ASSET[currency]}
         alt={`${currency} flag`}
         className="w-full h-full object-cover"
-        style={{ transform: 'scale(1.1)' }} // Aumenta um pouco para preencher melhor o círculo
+        style={{ transform: 'scale(1.1)' }}
       />
     </div>
   );
@@ -209,7 +189,7 @@ export default function CurrencyConverter() {
   const [fromCurrency, setFromCurrency] = useState<SupportedCurrency>('USD');
   const [toCurrency, setToCurrency] = useState<SupportedCurrency>('BRL');
   const [result, setResult] = useState<ConversionResult | null>(null);
-  const [supportedCurrencies, setSupportedCurrencies] = useState<SupportedCurrency[]>([]);
+  const [supportedCurrencies, setSupportedCurrencies] = useState<SupportedCurrency[]>(SUPPORTED_CURRENCIES);
   const [isClient, setIsClient] = useState(false);
 
   const { convertCurrency, getSupportedCurrencies, isLoading, error, clearError } = useCurrencyConverter();
@@ -222,7 +202,9 @@ export default function CurrencyConverter() {
   useEffect(() => {
     const loadCurrencies = async () => {
       const currencies = await getSupportedCurrencies();
-      setSupportedCurrencies(currencies);
+      if (Array.isArray(currencies) && currencies.length > 0) {
+        setSupportedCurrencies(currencies as SupportedCurrency[]);
+      }
     };
     loadCurrencies();
   }, [getSupportedCurrencies]);
