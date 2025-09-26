@@ -251,29 +251,29 @@ export default function CurrencyConverter() {
   };
 
   return (
-    <div 
-      className="min-h-screen text-black py-8 font-[Montserrat] relative"
-      style={{
-        backgroundImage: 'url(/waves.png)',
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat'
-      }}
-    >
-      {/* Overlay para melhorar legibilidade */}
-      <div className="absolute inset-0 bg-black bg-opacity-20"></div>
+    <div className="min-h-screen bg-white text-black py-8 font-[Montserrat] relative">
+      {/* Waves na parte inferior */}
+      <div 
+        className="absolute bottom-0 left-0 right-0 h-1/2"
+        style={{
+          backgroundImage: 'url(/waves.png)',
+          backgroundSize: 'cover',
+          backgroundPosition: 'bottom center',
+          backgroundRepeat: 'no-repeat'
+        }}
+      ></div>
       
       <div className="max-w-6xl mx-auto px-4 relative z-10">
         {/* Título principal fora do card */}
-        <h1 className="text-6xl md:text-7xl font-bold text-center text-white mb-12">
+        <h1 className="text-6xl md:text-7xl font-bold text-center text-gray-800 mb-12">
           CONVERSOR DE MOEDAS
         </h1>
-        <h2 className="text-xl md:text-2xl font-bold text-center text-white mb-12">
+        <h2 className="text-xl md:text-2xl font-bold text-center text-gray-600 mb-12">
         Bem-vindo à ferramenta de moedas mais confiável do mundo?
         </h2>
 
         {/* Card principal */}
-        <div className="max-w-6xl mx-auto p-8 bg-white bg-opacity-95 backdrop-blur-sm rounded-lg shadow-2xl border border-white border-opacity-20">
+        <div className="max-w-6xl mx-auto p-8 bg-white rounded-lg shadow-xl border border-gray-200">
           <div className="space-y-6">
             {/* Layout responsivo: linha no desktop, coluna no mobile */}
             <div className="flex flex-col lg:flex-row lg:items-end gap-4">
@@ -382,7 +382,7 @@ export default function CurrencyConverter() {
             )}
 
             {/* Informações sobre moedas suportadas */}
-            <div className="mt-8 p-6 bg-gray-50 bg-opacity-80 backdrop-blur-sm rounded-lg border border-gray-200">
+            <div className="mt-8 p-6 bg-gray-50 rounded-lg border border-gray-200">
               <h3 className="text-lg font-semibold text-gray-800 mb-4 text-center">
                 Moedas Suportadas ({supportedCurrencies.length})
               </h3>
@@ -390,7 +390,7 @@ export default function CurrencyConverter() {
                 {supportedCurrencies.map((currency) => (
                   <div
                     key={currency}
-                    className="flex items-center space-x-2 px-4 py-2 bg-white bg-opacity-90 text-gray-700 rounded-lg border border-gray-200 shadow-sm hover:shadow-md hover:bg-opacity-100 transition-all duration-200"
+                    className="flex items-center space-x-2 px-4 py-2 bg-white text-gray-700 rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200"
                   >
                     <CircularFlag currency={currency} size={24} />
                     <span className="text-sm font-medium">{currency}</span>
